@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Spotify Stats</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <nav class="main-nav">
+        <a href="{{ url_for('home') }}" class="nav-logo">
+            <i class="fab fa-spotify"></i> Spotify Stats
+        </a>
+        <div class="nav-links">
+            <a href="{{ url_for('about') }}" class="nav-link">Documentation</a>
+            <a href="{{ url_for('game') }}" class="nav-link">Game</a>
+            <a href="{{ url_for('dashboard') }}" class="nav-link">Dashboard</a>
+            <a href="{{ url_for('logout') }}" class="nav-link">Logout</a>
+        </div>
+    </nav>
+
+    <div class="animated-bg" style="opacity:0.8;"></div>
+    
+    <div class="glass-panel">
+        <div class="scroll-indicator">
+            <i class="fas fa-chevron-down"></i>
+        </div>
+        <!-- Profile Header -->
+        <div class="profile-header">
+            {% if user %}
+                {% if user.images %}
+                    <img src="{{ user.images[0].url }}" alt="Profile Picture" class="profile-picture floating">
+                {% else %}
+                    <div class="profile-picture default-picture floating">
+                        <i class="fas fa-user"></i>
+                    </div>
+                {% endif %}
+                <h1 class="username text-gradient">{{ user.display_name }}</h1>
+                {% if user.email %}
+                    <p class="email">{{ user.email }}</p>
+                {% endif %}
+            {% endif %}
+        </div>
+
+        <!-- Music DNA Section -->
+        <div class="dna-section">
+            <h2 class="section-title"><i class="fas fa-dna"></i> Your Music DNA</h2>
+            <div id="radar-chart" class="chart-container"></div>
+        </div>
+        <div class="top-section">
+            <!-- Top Tracks -->
+            <div class="top-tracks">
+                <h2 class="section-title"><i class="fas fa-music"></i> Your Top Tracks</h2>
+                <div class="tracks-list">
+                    {% for track in top_tracks %}
+                    <div class="track-item">
+                        <span class="track-number">{{ loop.index }}</span>
+                        <img src="{{ track.album.images[0].url }}" alt="{{ track.name }}" class="track-image">
+                        <div class="track-info">
+                            <p class="track-name">{{ track.name }}</p>
+                            <p class="track-artist">{{ track.artists[0].name }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <!-- Top Artists -->
+            <div class="top-artists">
+                <div style="background: #ff000033; padding: 10px; margin-top: 20px;">
+                    <h3>Debug Info:</h3>
+                    <p>Number of artists: {{ top_artists|length }}</p>
+                    <pre>{{ top_artists|tojson }}</pre>
+                </div>
+
+                <h2 class="section-title"><i class="fas fa-user"></i> Your Top Artists</h2>
+                <div class="artists-grid">
+                    {% for artist in top_artists %}
+                        <div class="artist-card">
+                            <div class="artist-rank">{{ loop.index }}</div>
+                            {% if artist.images %}  <!-- Open if -->
+                                <img src="{{ artist.images[0].url }}" alt="{{ artist.name }}" class="artist-image">
+                            {% else %}  <!-- Add else -->
+                                <div class="artist-image default-artist-image">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                            {% endif %}  <!-- Close if -->
+                            <h3 class="artist-name">{{ artist.name }}</h3>
+                            <div class="genres">
+                                {% for genre in artist.genres[:2] %}
+                                    <span class="genre-tag">{{ genre }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
+    <script>
+        // Simple music DNA loader
+        async function loadMusicDNA() {
+            const chartDiv = document.getElementById('radar-chart');
+            
+            try {
+                // Show loading state
+                chartDiv.innerHTML = '<p class="loading">Loading your music profile...</p>';
+                
+                // Fetch data
+                const response = await fetch('/music-dna');
+                const data = await response.json();
+                
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                
+                // Create the radar chart
+                const chartData = [{
+                    type: 'scatterpolar',
+                    r: [
+                        data.danceability,
+                        data.energy,
+                        data.valence,
+                        data.acousticness,
+                        data.instrumentalness,
+                        data.liveness,
+                        data.speechiness,
+                        data.danceability
+                    ],
+                    theta: [
+                        'Danceability', 'Energy', 'Valence',
+                        'Acousticness', 'Instrumentalness',
+                        'Liveness', 'Speechiness', 'Danceability'
+                    ],
+                    fill: 'toself',
+                    line: { color: '#1DB954' }
+                }];
+                
+                const layout = {
+                    polar: {
+                        radialaxis: { range: [0, 1] }
+                    }
+                };
+                
+                Plotly.newPlot('radar-chart', chartData, layout);
+                
+            } catch (error) {
+                console.error('Error:', error);
+                chartDiv.innerHTML = `
+                    <div class="error-message">
+                        <p>Couldn't load music analysis</p>
+                        <small>${error.message}</small>
+                    </div>
+                `;
+            }
+        }
+        
+        // Run when page loads
+        window.addEventListener('DOMContentLoaded', loadMusicDNA);
+    </script>
+
+<script>
+    async function loadMusicDNA() {
+        const chartDiv = document.getElementById('radar-chart');
+        
+        try {
+            chartDiv.innerHTML = '<div class="loading">Analyzing your music...</div>';
+            
+            const response = await fetch('/music-dna');
+            if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
+            
+            const data = await response.json();
+            if (data.error) throw new Error(data.error);
+            
+            // Validate data
+            const features = Object.values(data).every(v => v >= 0 && v <= 1) ? data : null;
+            if (!features) throw new Error("Invalid audio features");
+            
+            // Plotly chart setup
+            const chartData = [{
+                type: 'scatterpolar',
+                r: Object.values(features),
+                theta: Object.keys(features),
+                fill: 'toself',
+                fillcolor: 'rgba(29, 185, 84, 0.2)',
+                line: { color: '#1DB954' }
+            }];
+            
+            const layout = {
+                polar: { radialaxis: { range: [0, 1] } },
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                margin: { t: 20 }
+            };
+            
+            Plotly.newPlot(chartDiv, chartData, layout);
+            
+        } catch (error) {
+            console.error(error);
+            chartDiv.innerHTML = `
+                <div class="error">
+                    <p>Couldn't load music analysis</p>
+                    <small>${error.message}</small>
+                </div>
+            `;
+        }
+    }
+    
+    // Load when page is ready
+    window.addEventListener('DOMContentLoaded', loadMusicDNA);
+    </script>
+
+<div class="histogram-section">
+    <h2 class="section-title"><i class="fas fa-chart-bar"></i> Feature Distribution</h2>
+    <div id="histogram-chart" class="chart-container"></div>
+</div>
+
+<script>
+    // Add after loadMusicDNA()
+    async function loadHistogram() {
+        const response = await fetch('/music-dna');
+        const data = await response.json();
+        
+        const traces = Object.keys(data).map(feature => ({
+            x: [data[feature]],
+            name: feature,
+            type: 'histogram'
+        }));
+
+        Plotly.newPlot('histogram-chart', traces, {
+            title: 'Audio Feature Distribution',
+            barmode: 'stack'
+        });
+    }
+    window.addEventListener('DOMContentLoaded', loadHistogram);
+</script>
+
+
+</body>
+</html>

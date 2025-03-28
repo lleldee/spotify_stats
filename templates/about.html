@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Spotify Stats | Documentation</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <nav class="main-nav">
+        <a href="{{ url_for('home') }}" class="nav-logo">
+            <i class="fab fa-spotify"></i> Spotify Stats
+        </a>
+        <div class="nav-links">
+            <a href="{{ url_for('dashboard') }}" class="nav-link">Dashboard</a>
+            <a href="{{ url_for('logout') }}" class="nav-link">Logout</a>
+        </div>
+    </nav>
+
+    <div class="glass-panel documentation-container">
+        <h1 class="text-gradient">Project Documentation</h1>
+        
+        <section class="feature-section">
+            <h2><i class="fas fa-star"></i> Key Features</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3>Music DNA Analysis</h3>
+                    <p>Interactive radar chart showing your audio feature profile</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-database"></i>
+                    </div>
+                    <h3>Data Persistence</h3>
+                    <p>SQLite database stores your Spotify stats history</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-file-csv"></i>
+                    </div>
+                    <h3>CSV Import</h3>
+                    <p>Upload your own music data for analysis</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="tech-stack">
+            <h2><i class="fas fa-code"></i> Technology Stack</h2>
+            <div class="tech-grid">
+                <div class="tech-card">
+                    <img src="https://flask.palletsprojects.com/en/2.3.x/_images/flask-logo.png" alt="Flask">
+                    <p>Flask Backend</p>
+                </div>
+                <div class="tech-card">
+                    <img src="https://plotly.com/javascript/img/plotly-logo-01-square.png" alt="Plotly">
+                    <p>Plotly Visualizations</p>
+                </div>
+                <div class="tech-card">
+                    <img src="https://peewee.readthedocs.io/en/latest/_images/peewee-logo.png" alt="Peewee">
+                    <p>Peewee ORM</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="data-flow">
+            <h2><i class="fas fa-project-diagram"></i> Data Flow</h2>
+            <div class="flow-steps">
+                <div class="flow-step">
+                    <div class="step-number">1</div>
+                    <p>User authenticates with Spotify API</p>
+                </div>
+                <div class="flow-step">
+                    <div class="step-number">2</div>
+                    <p>Top tracks/artists data is fetched</p>
+                </div>
+                <div class="flow-step">
+                    <div class="step-number">3</div>
+                    <p>Audio features are analyzed and stored</p>
+                </div>
+                <div class="flow-step">
+                    <div class="step-number">4</div>
+                    <p>Visualizations are generated</p>
+                </div>
+            </div>
+        </section>
+
+    <footer class="doc-footer">
+        <p>Spotify Stats &copy; 2025 | Created for Datorium project </p>
+    </footer>
+</body>
+</html>

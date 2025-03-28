@@ -1,0 +1,42 @@
+<!-- templates/game.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Guess Your Top Tracks</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="game-container">
+        <h1>Guess Your Top 3 Tracks</h1>
+        <div class="attempts-counter">
+            Attempts: {{ attempts }}
+        </div>
+        <p>Can you guess your most played songs from the last 6 months?</p>
+        
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="alert">
+                    {{ messages[0] }}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="/game">
+            <div class="guess-inputs">
+                <input type="text" name="guess1" placeholder="Guess #1" required>
+                <input type="text" name="guess2" placeholder="Guess #2" required>
+                <input type="text" name="guess3" placeholder="Guess #3" required>
+            </div>
+            <button type="submit" class="submit-button">
+                {{ 'Try Again' if attempts > 0 else 'Check Answers' }}
+            </button>
+        </form>
+
+        <div class="game-options">
+            <a href="{{ url_for('game', show_answers=True) }}" class="give-up-button">
+                Show Me the Answers
+            </a>
+        </div>
+    </div>
+</body>
+</html>
